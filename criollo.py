@@ -1,8 +1,7 @@
+import io
 import os
 import re
-import io
-
-from typing import Union, Dict, Optional
+from typing import Union, Dict
 
 
 class Criollo:
