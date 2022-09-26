@@ -333,3 +333,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# user custom
+*.txt
+data/

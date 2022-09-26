@@ -12,8 +12,13 @@ rc('font', family=FONT)
 
 
 def main(args):
-    c = Criollo(args[1])
+    if len(args) != 2:
+        print("""Usage:
+        python criollo.py {kakaotalk_chat_path}
+        """)
+        return 0
 
+    c = Criollo(args[1])
     result_dir = f"./{c.room_name}"
     if not os.path.exists(result_dir):
         os.mkdir(result_dir)

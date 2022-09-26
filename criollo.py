@@ -26,6 +26,9 @@ class Criollo:
         self.room_name = None
         self.parsed = False
         self.__parse()
+        self.ai_initialized = False
+        self.model = None
+        self.tok = None
 
     def __parse(self):
         self.room_name = self.data[:self.data.find('님과 카카오톡 대화')].split(" ")[0]
@@ -118,4 +121,33 @@ class Criollo:
             ret[user] = dict()
             for k, v in temp:
                 ret[user][k] = v
+        return ret
+
+    def count_text_per_user(self, top_k=10) -> Dict[str, Dict[str, int]]:
+        ret = dict()
+        for line in self.arr:
+            user, text = line[0], line[2]
+            if len(text) > 10:
+                continue
+            if user not in ret:
+                ret[user] = dict()
+            if text not in ret[user]:
+                ret[user][text] = 0
+            ret[user][text] += 1
+        for user in ret:
+            temp = sorted(ret[user].items(), key=lambda x: x[1], reverse=True)[:top_k]
+            ret[user] = dict()
+            for k, v in temp:
+                ret[user][k] = v
+        return ret
+
+
+    def sent_cls(self, model:str='ke-t5'):
+        assert self.parsed
+        ret = dict()
+        for user, time, text in self.arr:
+            user = user
+            time = time
+            text = text
+        self.ai_initialized = True
         return ret
