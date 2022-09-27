@@ -3,6 +3,8 @@ import os
 import re
 from typing import Union, Dict
 
+from tqdm import tqdm
+
 
 class Criollo:
     def __init__(self, file: Union[str, io.TextIOBase, io.FileIO]) -> None:
@@ -29,6 +31,8 @@ class Criollo:
         self.ai_initialized = False
         self.model = None
         self.tok = None
+        self.clf = None
+        self.dataloader = None
 
     def __parse(self):
         self.room_name = self.data[:self.data.find('님과 카카오톡 대화')].split(" ")[0]
@@ -140,14 +144,44 @@ class Criollo:
             for k, v in temp:
                 ret[user][k] = v
         return ret
+    
+    def __initialize_ai(self):
+        import torch
+        from torch.utils.data import DataLoader
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification, TextClassificationPipeline
 
+        from utils import CriolloDataset
 
-    def sent_cls(self, model:str='ke-t5'):
-        assert self.parsed
-        ret = dict()
-        for user, time, text in self.arr:
-            user = user
-            time = time
-            text = text
+        self.tok = AutoTokenizer.from_pretrained("jaehyeong/koelectra-base-v3-generalized-sentiment-analysis")
+        self.model = AutoModelForSequenceClassification.from_pretrained("jaehyeong/koelectra-base-v3-generalized-sentiment-analysis")
+        device = 0 if torch.cuda.is_available() else -1
+        self.clf = TextClassificationPipeline(tokenizer=self.tok, model=self.model, device=device)
+
+        dataset = CriolloDataset(self.arr)
+        self.dataloader = DataLoader(dataset=dataset, batch_size=128, shuffle=False)
         self.ai_initialized = True
-        return ret
+    
+    def sent_cls(self):
+        assert self.parsed
+        if not self.ai_initialized:
+            self.__initialize_ai()
+        result = dict()
+        with tqdm(self.dataloader) as pbar:
+            pbar.set_description("Analyzing text")
+            for batch in pbar:
+                users, times, texts = batch[0], batch[1], list(batch[2])
+                preds = self.clf(texts)
+                for idx in range(len(preds)):
+                    pred, user, time = preds[idx], users[idx], times[idx]
+                    if user not in result:
+                        result[user] = 0
+                    
+                    label, score = pred['label'], pred['score']
+                    if score < 0.75:
+                        continue
+                    
+                    if label == 0:
+                        result[user] -= score
+                    else:
+                        result[user] += score
+        return result
