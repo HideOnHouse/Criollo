@@ -174,14 +174,14 @@ class Criollo:
                 for idx in range(len(preds)):
                     pred, user, time = preds[idx], users[idx], times[idx]
                     if user not in result:
-                        result[user] = 0
+                        result[user] = []
                     
                     label, score = pred['label'], pred['score']
                     if score < 0.75:
                         continue
                     
                     if label == 0:
-                        result[user] -= score
+                        result[user].append(-score)
                     else:
-                        result[user] += score
+                        result[user].append(score)
         return result
