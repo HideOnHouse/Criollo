@@ -165,7 +165,13 @@ class Criollo:
                                  model=self.model, device=device, use_fast=True, framework='pt')
         self.ai_initialized = True
 
-    def sent_cls(self):
+    def sent_cls(self) -> Dict[str, list]:
+        """
+        conduct sentiment classification with NLU model.
+
+        Returns:
+            Dict[str, list]: dictionary list of user sentiment in time order per user
+        """
         assert self.parsed
         if not self.ai_initialized:
             self.__initialize_ai()

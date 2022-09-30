@@ -1,14 +1,15 @@
 import os
 import sys
 
+import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib import rc, font_manager
 
 from criollo import Criollo
 
-FONT_PATH = r'C:/Windows/Fonts/malgun.ttf'
-FONT = font_manager.FontProperties(fname=FONT_PATH).get_name()
-rc('font', family=FONT)
+# FONT_PATH = r'C:/Windows/Fonts/malgun.ttf'
+# FONT = font_manager.FontProperties(fname=FONT_PATH).get_name()
+rc('font', family='nanumgothic')
 
 
 def main(args):
@@ -69,6 +70,16 @@ def main(args):
             plt.text(v, k, v, va='center')
         plt.tight_layout()
         plt.savefig(f"{result_dir}/{user}.png")
+        plt.close()
+
+    temp = c.sent_cls()
+    for k, v in temp.items():
+        plt.figure(figsize=(12, 4))
+        plt.title(f"{k}의 시간별 기분의 변화")
+        v = pd.DataFrame(v)
+        v = v.ewm(alpha=0.05).mean()
+        plt.plot(v)
+        plt.savefig(f"{result_dir}/{k}_sent.png")
         plt.close()
 
 
