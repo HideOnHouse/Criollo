@@ -53,6 +53,17 @@ class Criollo:
         self.arr = arr
         self.parsed = True
 
+    def __is_valid(self, text):
+        ret = True
+        card = set(text)
+        if len(text) > 10:
+            ret = False
+        if len(card) == 1:
+            ret = False
+        if text == '사진' or text == '이모티콘' or text == '동영상':
+            ret = False
+        return ret
+
     def count_user(self) -> Dict[str, int]:
         """
 
@@ -101,11 +112,10 @@ class Criollo:
         text_counts = dict()
         for line in self.arr:
             text = line[2]
-            if len(text) > 10:
+            if not self.__is_valid(text):
                 continue
-
             if text not in text_counts:
-                text_counts[text] = 9
+                text_counts[text] = 0
             text_counts[text] += 1
         text_counts = sorted(text_counts.items(),
                              key=lambda x: x[1], reverse=True)[:k]
@@ -118,26 +128,7 @@ class Criollo:
         ret = dict()
         for line in self.arr:
             user, text = line[0], line[2]
-            if len(text) > 10:
-                continue
-            if user not in ret:
-                ret[user] = dict()
-            if text not in ret[user]:
-                ret[user][text] = 0
-            ret[user][text] += 1
-        for user in ret:
-            temp = sorted(ret[user].items(),
-                          key=lambda x: x[1], reverse=True)[:top_k]
-            ret[user] = dict()
-            for k, v in temp:
-                ret[user][k] = v
-        return ret
-
-    def count_text_per_user(self, top_k=10) -> Dict[str, Dict[str, int]]:
-        ret = dict()
-        for line in self.arr:
-            user, text = line[0], line[2]
-            if len(text) > 10:
+            if not self.__is_valid(text):
                 continue
             if user not in ret:
                 ret[user] = dict()
