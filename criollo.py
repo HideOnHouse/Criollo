@@ -102,6 +102,37 @@ class Criollo:
             ret[time] += 1
         return ret
 
+    def count_time_per_user(self, trim: str='hour') -> Dict[str, Dict[str, int]]:
+        """
+        returns count of text occurred within time for each user
+
+        Args:
+            trim (str, optional): user trim as a bin. Defaults to 'hour'.
+
+        Returns:
+            Dict[str, Dict[str, int]]: dictionary with count of text occurred within time as key for each user
+        """
+        assert self.parsed
+        if trim == 'hour':
+            def trimmer(x: str):
+                return f"{x.split(':')[0]:0>2}"
+        elif trim == "minute":
+            def trimmer(x: str):
+                return f"{x:0>2}"
+        else:
+            raise ValueError("Invalid argument passed")
+        ret = dict()
+        for line in self.arr:
+            user, time, text = line
+            if user not in ret:
+                ret[user] = dict()
+            time = trimmer(line[1])
+            if time not in ret[user]:
+                ret[user][time] = 0
+            ret[user][time] += 1
+        return ret
+
+
     def count_text(self, k=10) -> Dict[str, int]:
         """
 

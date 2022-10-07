@@ -44,6 +44,18 @@ def main(args):
     plt.savefig(f'{result_dir}/time.png')
     plt.close()
 
+    temp = c.count_time_per_user()
+    for user, hist in temp.items():
+        hist = sorted(hist.items(), key=lambda x: x[0])
+        plt.figure(dpi=200)
+        plt.title(f"{user}님의 활동 시간")
+        plt.bar(*zip(*hist))
+        for k, v in hist:
+            plt.text(k, v, v, ha='center')
+        plt.tight_layout()
+        plt.savefig(f'{result_dir}/{user}_time.png')
+        plt.close()
+
     temp = sorted(c.count_text(k=30).items(), key=lambda x: x[1])
     plt.figure(dpi=200)
     plt.title(f"어떤 단어가 제일 많이 나왔을까?")
@@ -72,15 +84,15 @@ def main(args):
         plt.savefig(f"{result_dir}/{user}.png")
         plt.close()
 
-    temp = c.sent_cls()
-    for k, v in temp.items():
-        plt.figure(figsize=(12, 4))
-        plt.title(f"{k}의 시간별 기분의 변화")
-        v = pd.DataFrame(v)
-        v = v.ewm(alpha=0.05).mean()
-        plt.plot(v)
-        plt.savefig(f"{result_dir}/{k}_sent.png")
-        plt.close()
+    # temp = c.sent_cls()
+    # for k, v in temp.items():
+    #     plt.figure(figsize=(12, 4))
+    #     plt.title(f"{k}의 시간별 기분의 변화")
+    #     v = pd.DataFrame(v)
+    #     v = v.ewm(alpha=0.05).mean()
+    #     plt.plot(v)
+    #     plt.savefig(f"{result_dir}/{k}_sent.png")
+    #     plt.close()
 
 
 if __name__ == '__main__':
