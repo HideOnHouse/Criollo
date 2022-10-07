@@ -69,14 +69,7 @@ def main(args):
     temp = c.count_text_per_user()
     for user in temp:
         current_user = sorted(temp[user].items(), key=lambda x: x[1])
-
-        # has coda
-        if ord(user[-1]) - 44032 % 28 == 0:
-            postfix = '가'
-        else:
-            postfix = '이'
-
-        plt.title(f"{user}{postfix} 제일 많이 사용한 단어는?")
+        plt.title(f"{user}님이 제일 많이 사용한 단어는?")
         plt.barh(*zip(*current_user))
         for k, v in current_user:
             plt.text(v, k, v, va='center')

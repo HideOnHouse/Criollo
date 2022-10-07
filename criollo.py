@@ -38,20 +38,35 @@ class Criollo:
         self.dataloader = None
 
     def __parse(self):
-        self.room_name = self.data[:self.data.find('님과 카카오톡 대화')].split(" ")[0]
-        parser = re.compile(
-            r'\[(\S+)] \[(\S{2} \d{1,2}:\d{1,2})] ([\s\S]+?)\n', re.MULTILINE)
+        self.room_name = self.data[:self.data.find('카카오톡 대화')]
         arr = []
+
+        # parser = re.compile(
+        #     r'\[(\S\s+)] \[(\S{2} \d{1,2}:\d{1,2})] ([\s\S]+?)\n', re.MULTILINE)
+        # for line in parser.finditer(self.data):
+        #     user, time, text = line.groups()
+        #     hour, minute = map(int, time.split(" ")[1].split(":"))
+        #     if time[1] == '후':
+        #         hour += 12
+        #     time = f"{hour}:{minute}"
+        #     text = text.rstrip('\r')
+        #     arr.append([user, time, text])
+        # self.arr = arr
+        # self.parsed = True
+
+        parser = re.compile(
+            r'(\d+)년 (\d+)월 (\d)일 (오\S) (\d+):(\d+). ([\S ]+?) : ([\S ]+?)\n', re.MULTILINE)
         for line in parser.finditer(self.data):
-            user, time, text = line.groups()
-            hour, minute = map(int, time.split(" ")[1].split(":"))
-            if time[1] == '후':
+            year, month, day, flag, hour, minute, user, text = line.groups()
+            hour, minute = map(int, [hour, minute])
+            if flag == '오후':
                 hour += 12
             time = f"{hour}:{minute}"
             text = text.rstrip('\r')
             arr.append([user, time, text])
         self.arr = arr
         self.parsed = True
+
 
     def __is_valid(self, text):
         ret = True
