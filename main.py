@@ -1,14 +1,12 @@
 import os
 import sys
 
-import pandas as pd
+import networkx as nx
 from matplotlib import pyplot as plt
-from matplotlib import rc, font_manager
+from matplotlib import rc
 
 from criollo import Criollo
 
-# FONT_PATH = r'C:/Windows/Fonts/malgun.ttf'
-# FONT = font_manager.FontProperties(fname=FONT_PATH).get_name()
 rc('font', family='nanumgothic')
 
 
@@ -26,7 +24,7 @@ def main(args):
 
     temp = c.count_user().items()
     plt.figure(dpi=200)
-    plt.title("누가 제일 많이 떠들었을까?")
+    plt.title("가장 많이 이야기한 사람")
     plt.bar(*zip(*temp))
     for k, v in temp:
         plt.text(k, v, v, ha='center')
@@ -36,7 +34,7 @@ def main(args):
 
     temp = sorted(c.count_time().items(), key=lambda x: x[0])
     plt.figure(dpi=200)
-    plt.title("어떤 시간에 제일 많이 떠들까?")
+    plt.title("활동 시간")
     plt.bar(*zip(*temp))
     for k, v in temp:
         plt.text(k, v, v, ha='center')
@@ -58,7 +56,7 @@ def main(args):
 
     temp = sorted(c.count_text(k=30).items(), key=lambda x: x[1])
     plt.figure(dpi=200)
-    plt.title(f"어떤 단어가 제일 많이 나왔을까?")
+    plt.title(f"가장 많이 나온 단어")
     plt.barh(*zip(*temp))
     for k, v in temp:
         plt.text(v, k, v, va='center')
@@ -69,13 +67,33 @@ def main(args):
     temp = c.count_text_per_user()
     for user in temp:
         current_user = sorted(temp[user].items(), key=lambda x: x[1])
-        plt.title(f"{user}님이 제일 많이 사용한 단어는?")
+        plt.title(f"{user}님이 제일 많이 사용한 단어")
         plt.barh(*zip(*current_user))
         for k, v in current_user:
             plt.text(v, k, v, va='center')
         plt.tight_layout()
         plt.savefig(f"{result_dir}/{user}.png")
         plt.close()
+
+    temp = c.graph_relation(window_size=7)
+    g = nx.Graph()
+    for k, v in temp.items():
+        g.add_nodes_from(k)
+        g.add_edge(k[0], k[1], weight=v)
+    plt.figure(figsize=(10, 10))
+    label_list = [i for i in g.nodes()]
+    weight_list = [i[2]['weight'] for i in g.edges(data=True)]
+    max_weight = max(weight_list) / 5
+    positions = nx.circular_layout(g)
+    node_size = max(len(i) for i in label_list)
+    nx.draw(g,
+            width=[i / max_weight for i in weight_list],
+            with_labels=True,
+            pos=positions,
+            node_size=node_size * 1000,
+            node_color='cornflowerblue',
+            font_family='NanumGothic')
+    plt.savefig('./graph_relation.png')
 
     # temp = c.sent_cls()
     # for k, v in temp.items():

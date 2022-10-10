@@ -337,5 +337,7 @@ cython_debug/
 *.txt
 data/
 models/
-temp.*
-*temp.*
+*temp*
+*.png
+*.jpg
+*.csv

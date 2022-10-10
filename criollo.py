@@ -238,3 +238,32 @@ class Criollo:
                     else:
                         result[user].append(score)
         return result
+
+    def graph_relation(self, window_size=3) -> Dict[tuple(str, str), int]:
+        """
+        analysis chatting frequency between two people within window size
+
+        Args:
+            window_size (int, optional): sliding window size. Defaults to 3.
+
+        Returns:
+            Dict[tuple(str, str), int]: dictionary with frequency between two people within window size
+        """
+        ret = dict()
+        queue = []
+        for idx in range(min(len(self.arr), window_size - 1)):
+            queue.append(self.arr[idx][0])
+
+        for idx in range(window_size, len(self.arr)):
+            user = self.arr[idx][0]
+            queue.append(user)
+            rel = set(queue)
+            queue.pop(0)
+            if len(rel) != 2:
+                continue
+            rel = tuple(sorted(rel))
+            if rel not in ret:
+                ret[rel] = 0
+            ret[rel] += 1
+
+        return ret
